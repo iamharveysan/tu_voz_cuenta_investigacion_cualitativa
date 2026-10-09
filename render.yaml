@@ -1,0 +1,33 @@
+# Blueprint de Render: un único Web Service (frontend + API) con disco persistente para SQLite.
+# En Render: New → Blueprint → selecciona este repositorio. Te pedirá OPENAI_API_KEY y ADMIN_PASSWORD.
+services:
+  - type: web
+    name: tu-voz-cuenta
+    runtime: node
+    plan: starter # instancia paga: no se "duerme" (evita esperas al escanear el QR)
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "24"
+      - key: AI_MODE
+        value: openai
+      - key: OPENAI_MODEL
+        value: gpt-5-mini
+      - key: OPENAI_REASONING_EFFORT
+        value: low
+      - key: OPENAI_API_KEY
+        sync: false # secreto: se ingresa a mano en el panel de Render
+      - key: ADMIN_PASSWORD
+        sync: false # secreto: contraseña del panel docente
+      - key: SESSION_SECRET
+        generateValue: true # Render genera un valor aleatorio
+      - key: DATABASE_PATH
+        value: /var/data/tuvoz.db
+    disk:
+      name: tuvoz-data
+      mountPath: /var/data
+      sizeGB: 1
